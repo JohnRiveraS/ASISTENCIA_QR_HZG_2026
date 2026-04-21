@@ -11,7 +11,7 @@
 <h2>Asistencia QR</h2>
 
 <input id="dni" placeholder="DNI docente">
-<button onclick="alert('FUNCIONA')">Validar</button>
+<button onclick="validar()">Validar</button>
   
 <div id="info"></div>
 
@@ -54,26 +54,37 @@ let qr;
 function validar() {
   let dni = document.getElementById("dni").value;
 
-  alert("DNI ingresado: " + dni); // 👈 prueba 1
+  if (!dni) {
+    alert("Ingrese DNI");
+    return;
+  }
 
   fetch("https://script.google.com/macros/s/AKfycbyvGctwZ_IskT2M9kSC68moempT5GV29cS0nxAyGo1FhVTlDCmnP432gcUXbuul7jaD/exec?dni=" + dni)
-    .then(response => {
-      alert("Respuesta recibida"); // 👈 prueba 2
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-      alert("Datos: " + JSON.stringify(data)); // 👈 prueba 3
 
       if (!data) {
         alert("Docente no encontrado");
         return;
       }
 
+      contexto.docente = data.dni;
+      contexto.nivel = data.nivel;
+
       document.getElementById("info").innerHTML = data.nombre;
       document.getElementById("config").style.display = "block";
+
+      if (data.nivel == "SECUNDARIA") {
+        document.getElementById("secundaria").style.display = "block";
+        cargarSecciones();
+      } else {
+        contexto.grado = data.grado;
+        contexto.seccion = data.seccion;
+      }
+
     })
     .catch(error => {
-      alert("ERROR: " + error);
+      alert("Error: " + error);
     });
 }
 
