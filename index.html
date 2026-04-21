@@ -54,30 +54,26 @@ let qr;
 function validar() {
   let dni = document.getElementById("dni").value;
 
+  console.log("DNI:", dni);
+
   fetch("https://script.google.com/macros/s/AKfycbyvGctwZ_IskT2M9kSC68moempT5GV29cS0nxAyGo1FhVTlDCmnP432gcUXbuul7jaD/exec?dni=" + dni)
     .then(r => r.json())
     .then(res => {
+
+      console.log("RESPUESTA:", res);
+      alert(JSON.stringify(res)); // 👈 DEBUG
 
       if (!res) {
         alert("No encontrado");
         return;
       }
 
-      contexto.docente = res.dni;
-      contexto.nivel = res.nivel;
-
       document.getElementById("info").innerHTML = res.nombre;
-
       document.getElementById("config").style.display = "block";
 
-      if (res.nivel == "SECUNDARIA") {
-        document.getElementById("secundaria").style.display = "block";
-        cargarSecciones();
-      } else {
-        contexto.grado = res.grado;
-        contexto.seccion = res.seccion;
-      }
-
+    })
+    .catch(err => {
+      alert("ERROR: " + err);
     });
 }
 
