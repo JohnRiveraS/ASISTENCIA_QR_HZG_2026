@@ -54,7 +54,7 @@ let qr;
 function validar() {
   let dni = document.getElementById("dni").value;
 
-  fetch("TU_URL_SCRIPT?dni=" + dni)
+  fetch("https://script.google.com/macros/s/AKfycbzELafdFtzVpsrRpgRXs6pb5eAlFxewkdsCQsJcKK_uCU7O55rNHh5qG-iexrZmNAnP/exec?dni=" + dni)
     .then(r => r.json())
     .then(res => {
 
@@ -120,7 +120,7 @@ function iniciarScanner() {
 }
 
 function registrar(dni) {
-  fetch("TU_URL_SCRIPT", {
+  fetch("https://script.google.com/macros/s/AKfycbzELafdFtzVpsrRpgRXs6pb5eAlFxewkdsCQsJcKK_uCU7O55rNHh5qG-iexrZmNAnP/exec", {
     method: "POST",
     body: JSON.stringify({
       dni: dni,
