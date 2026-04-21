@@ -54,26 +54,26 @@ let qr;
 function validar() {
   let dni = document.getElementById("dni").value;
 
-  console.log("DNI:", dni);
+  alert("DNI ingresado: " + dni); // 👈 prueba 1
 
   fetch("https://script.google.com/macros/s/AKfycbyvGctwZ_IskT2M9kSC68moempT5GV29cS0nxAyGo1FhVTlDCmnP432gcUXbuul7jaD/exec?dni=" + dni)
-    .then(r => r.json())
-    .then(res => {
+    .then(response => {
+      alert("Respuesta recibida"); // 👈 prueba 2
+      return response.json();
+    })
+    .then(data => {
+      alert("Datos: " + JSON.stringify(data)); // 👈 prueba 3
 
-      console.log("RESPUESTA:", res);
-      alert(JSON.stringify(res)); // 👈 DEBUG
-
-      if (!res) {
-        alert("No encontrado");
+      if (!data) {
+        alert("Docente no encontrado");
         return;
       }
 
-      document.getElementById("info").innerHTML = res.nombre;
+      document.getElementById("info").innerHTML = data.nombre;
       document.getElementById("config").style.display = "block";
-
     })
-    .catch(err => {
-      alert("ERROR: " + err);
+    .catch(error => {
+      alert("ERROR: " + error);
     });
 }
 
