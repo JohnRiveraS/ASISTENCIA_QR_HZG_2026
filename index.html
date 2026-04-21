@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asistencia QR</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+
+<body>
+
+<h2>Asistencia QR</h2>
+
+<input id="dni" placeholder="DNI docente">
+<button onclick="validar()">Validar</button>
+
+<div id="info"></div>
+
+<div id="config" style="display:none;">
+  <div id="secundaria" style="display:none;">
+    <select id="grado" onchange="cargarSecciones()">
+      <option>PRIMERO</option>
+      <option>SEGUNDO</option>
+      <option>TERCERO</option>
+      <option>CUARTO</option>
+      <option>QUINTO</option>
+    </select>
+
+    <select id="seccion"></select>
+  </div>
+
+  <select id="area">
+    <option value="MATE">MATE</option>
+    <option value="COM">COM</option>
+    <option value="CCSS">CCSS</option>
+    <option value="CT">CT</option>
+    <option value="DPCC">DPCC</option>
+    <option value="ING">ING</option>
+    <option value="ART">ART</option>
+    <option value="EPT">EPT</option>
+    <option value="REG">REG</option>
+    <option value="FIS">FIS</option>
+  </select>
+
+  <button onclick="iniciar()">INICIAR</button>
+</div>
+
+<div id="scanner" style="width:300px;"></div>
+
+<script>
+
+let contexto = {};
+let qr;
+
+function validar() {
+  let dni = document.getElementById("dni").value;
+
+  fetch("https://script.google.com/macros/s/AKfycbzELafdFtzVpsrRpgRXs6pb5eAlFxewkdsCQsJcKK_uCU7O55rNHh5qG-iexrZmNAnP/exec?dni=" + dni)
+    .then(r => r.json())
+    .then(res => {
+
+      if (!res) {
+        alert("No encontrado");
+        return;
+      }
+
+      contexto.docente = res.dni;
+      contexto.nivel = res.nivel;
+
+      document.getElementById("info").innerHTML = res.nombre;
+
+      document.getElementById("config").style.display = "block";
+
+      if (res.nivel == "SECUNDARIA") {
+        document.getElementById("secundaria").style.display = "block";
+        cargarSecciones();
+      } else {
+        contexto.grado = res.grado;
+        contexto.seccion = res.seccion;
+      }
+
+    });
+}
+
+function cargarSecciones() {
+  let grado = document.getElementById("grado").value;
+  let select = document.getElementById("seccion");
+
+  let opciones = (grado == "PRIMERO") ? ["A","B","C","D"] : ["A","B","C"];
+
+  select.innerHTML = "";
+  opciones.forEach(s => {
+    let op = document.createElement("option");
+    op.value = s;
+    op.text = s;
+    select.appendChild(op);
+  });
+}
+
+function iniciar() {
+  contexto.area = document.getElementById("area").value;
+
+  if (contexto.nivel == "SECUNDARIA") {
+    contexto.grado = document.getElementById("grado").value;
+    contexto.seccion = document.getElementById("seccion").value;
+  }
+
+  iniciarScanner();
+}
+
+function iniciarScanner() {
+  qr = new Html5Qrcode("scanner");
+
+  qr.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    (decodedText) => {
+      registrar(decodedText);
+    }
+  );
+}
+
+function registrar(dni) {
+  fetch("https://script.google.com/macros/s/AKfycbzELafdFtzVpsrRpgRXs6pb5eAlFxewkdsCQsJcKK_uCU7O55rNHh5qG-iexrZmNAnP/exec", {
+    method: "POST",
+    body: JSON.stringify({
+      dni: dni,
+      contexto: contexto
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    alert(res.msg);
+  });
+}
+
+</script>
+
+</body>
+</html>
