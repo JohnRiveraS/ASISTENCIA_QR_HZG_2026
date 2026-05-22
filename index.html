@@ -8,6 +8,14 @@
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
 
+  <!-- iPhone -->
+
+  <meta name="apple-mobile-web-app-capable"
+        content="yes">
+
+  <meta name="apple-mobile-web-app-status-bar-style"
+        content="default">
+
   <title>Asistencia QR</title>
 
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -52,6 +60,7 @@
 
       width:70px;
       height:70px;
+
       object-fit:contain;
 
       background:white;
@@ -59,6 +68,8 @@
       border-radius:50%;
 
       padding:5px;
+
+      flex-shrink:0;
 
     }
 
@@ -68,11 +79,14 @@
 
       flex:1;
 
+      padding:0 10px;
+
     }
 
     .header-text h1{
 
       font-size:22px;
+
       font-weight:bold;
 
     }
@@ -80,6 +94,7 @@
     .header-text h2{
 
       font-size:18px;
+
       margin-top:5px;
 
     }
@@ -87,6 +102,7 @@
     .header-text p{
 
       margin-top:5px;
+
       font-size:14px;
 
     }
@@ -159,6 +175,7 @@
     input::placeholder{
 
       color:#999;
+
       font-style:italic;
 
     }
@@ -272,6 +289,24 @@
 
     }
 
+    @keyframes aparecer{
+
+      from{
+
+        opacity:0;
+        transform:translateY(30px);
+
+      }
+
+      to{
+
+        opacity:1;
+        transform:translateY(0);
+
+      }
+
+    }
+
     /* SCANNER */
 
     #scanner-container{
@@ -294,19 +329,19 @@
 
     #popup{
 
-      position:absolute;
+      position:fixed;
 
-      top:50%;
+      bottom:20px;
 
       left:50%;
 
-      transform:translate(-50%, -50%);
+      transform:translateX(-50%);
 
       width:90%;
 
-      max-width:400px;
+      max-width:420px;
 
-      z-index:999;
+      z-index:99999;
 
     }
 
@@ -324,13 +359,15 @@
 
       margin-bottom:10px;
 
+      font-size:28px;
+
     }
 
     .mensaje p{
 
       margin-bottom:8px;
 
-      font-size:17px;
+      font-size:18px;
 
     }
 
@@ -372,6 +409,41 @@
 
     @media(max-width:700px){
 
+      .header{
+
+        flex-direction:row;
+
+        gap:10px;
+
+        padding:10px;
+
+      }
+
+      .header img{
+
+        width:50px;
+        height:50px;
+
+      }
+
+      .header-text h1{
+
+        font-size:15px;
+
+      }
+
+      .header-text h2{
+
+        font-size:13px;
+
+      }
+
+      .header-text p{
+
+        font-size:11px;
+
+      }
+
       .fila{
 
         flex-direction:column;
@@ -382,18 +454,6 @@
 
       .fila label{
         min-width:100%;
-      }
-
-      .header{
-
-        flex-direction:column;
-
-        gap:10px;
-
-      }
-
-      .header-text{
-        order:2;
       }
 
     }
@@ -437,8 +497,6 @@
     <div class="titulo">
       REGISTRO DE ASISTENCIA
     </div>
-
-    <!-- CONTADOR -->
 
     <div id="contador"
          class="contador">
@@ -575,11 +633,13 @@
 
       <div id="scanner"></div>
 
-      <div id="popup"></div>
-
     </div>
 
   </div>
+
+  <!-- POPUP -->
+
+  <div id="popup"></div>
 
 <script>
 
@@ -589,7 +649,7 @@ let bloqueado = false;
 let totalRegistrados = 0;
 
 const URL_SCRIPT =
-"https://script.google.com/macros/s/AKfycbwq6NH5EB0TrC36Ihtlo71aJuepGXHIB4QGKyNlYMh0zlwmizBjtzZjgRC9VxXseKqd/exec";
+"https://script.google.com/macros/s/AKfycbwF9SLtXikivyjOu_j-a_kmSPpYp8lqgaWWW7InNUbkyRZARubA0NfRE8MM9ThY98op/exec";
 
 function mostrarLoader(){
 
@@ -814,7 +874,8 @@ function registrar(dni){
              style="
                background:white;
                border:3px solid #0b4fa2;
-               box-shadow:0 5px 20px rgba(0,0,0,0.3);
+               box-shadow:0 10px 25px rgba(0,0,0,0.35);
+               animation:aparecer 0.2s ease;
              ">
 
           <h2>
@@ -887,7 +948,8 @@ async function finalizarAsistencia(){
          style="
            background:white;
            border:3px solid #198754;
-           box-shadow:0 5px 20px rgba(0,0,0,0.3);
+           box-shadow:0 10px 25px rgba(0,0,0,0.35);
+           animation:aparecer 0.2s ease;
          ">
 
       <h2>
