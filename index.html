@@ -59,7 +59,7 @@
 
 let contexto = {};
 let qr;
-let scannerActivo = false;
+let bloqueado = false;
 
 const URL_SCRIPT =
 "https://script.google.com/macros/s/AKfycbw89TfLJnFPuM_JMVMy-EhOq5PEm2dwNhqosAl13xE2PgYL7rB5OLzR1xrP74PQWrSL/exec";
@@ -75,7 +75,7 @@ function validar() {
 
   fetch(URL_SCRIPT + "?dni=" + dni)
 
-    .then(response => response.json())
+    .then(r => r.json())
 
     .then(data => {
 
@@ -87,13 +87,16 @@ function validar() {
       contexto.docente = data.dni;
       contexto.nivel = data.nivel;
 
-      document.getElementById("info").innerHTML = data.nombre;
+      document.getElementById("info").innerHTML =
+        data.nombre;
 
-      document.getElementById("config").style.display = "block";
+      document.getElementById("config").style.display =
+        "block";
 
       if (data.nivel == "SECUNDARIA") {
 
-        document.getElementById("secundaria").style.display = "block";
+        document.getElementById("secundaria")
+          .style.display = "block";
 
         cargarSecciones();
 
@@ -108,7 +111,7 @@ function validar() {
 
     .catch(error => {
 
-      alert("Error de conexión");
+      alert("Error conexión docente");
 
       console.log(error);
 
@@ -118,14 +121,16 @@ function validar() {
 
 function cargarSecciones() {
 
-  let grado = document.getElementById("grado").value;
+  let grado =
+    document.getElementById("grado").value;
 
-  let select = document.getElementById("seccion");
+  let select =
+    document.getElementById("seccion");
 
   let opciones =
-    (grado == "PRIMERO")
-      ? ["A", "B", "C", "D"]
-      : ["A", "B", "C"];
+    grado == "PRIMERO"
+      ? ["A","B","C","D"]
+      : ["A","B","C"];
 
   select.innerHTML = "";
 
@@ -163,12 +168,6 @@ function iniciar() {
 
 function iniciarScanner() {
 
-  if (scannerActivo) return;
-
-  scannerActivo = true;
-
-  document.getElementById("scanner").innerHTML = "";
-
   qr = new Html5Qrcode("scanner");
 
   qr.start(
@@ -180,13 +179,12 @@ function iniciarScanner() {
       qrbox: 250
     },
 
-    async (decodedText) => {
+    async(decodedText) => {
 
-      await qr.stop();
+      if (bloqueado) return;
 
-      scannerActivo = false;
+      bloqueado = true;
 
-      // 🔥 LIMPIAR QR
       let dni = decodedText.trim();
 
       dni = dni.replace("DNI:", "");
@@ -209,7 +207,7 @@ async function registrar(dni) {
       method: "POST",
 
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "text/plain;charset=utf-8"
       },
 
       body: JSON.stringify({
@@ -221,15 +219,13 @@ async function registrar(dni) {
 
     const res = await response.json();
 
-    console.log(res);
-
     document.getElementById("info").innerHTML = `
 
       <div style="
         background:white;
         padding:20px;
-        border-radius:10px;
         margin-top:20px;
+        border-radius:10px;
         text-align:center;
       ">
 
@@ -237,7 +233,7 @@ async function registrar(dni) {
           ${res.ok ? "REGISTRADO" : "OBSERVACION"}
         </h2>
 
-        <p style="font-size:20px;">
+        <p>
           ${res.msg}
         </p>
 
@@ -262,9 +258,9 @@ async function registrar(dni) {
 
   }
 
-  catch (error) {
+  catch(error) {
 
-    alert("Error: " + error);
+    alert("ERROR REGISTRO");
 
     console.log(error);
 
@@ -274,25 +270,21 @@ async function registrar(dni) {
 
 function continuarEscaneo() {
 
-  document.getElementById("info").innerHTML = "";
+  bloqueado = false;
 
-  iniciarScanner();
+  document.getElementById("info").innerHTML = "";
 
 }
 
 async function finalizarAsistencia() {
 
-  if (qr) {
+  try {
 
-    try {
+    await qr.stop();
 
-      await qr.stop();
+  } catch(e) {}
 
-    } catch (e) {}
-
-  }
-
-  scannerActivo = false;
+  bloqueado = false;
 
   document.getElementById("scanner").innerHTML = "";
 
