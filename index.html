@@ -62,15 +62,18 @@ let qr;
 let bloqueado = false;
 
 const URL_SCRIPT =
-"https://script.google.com/macros/s/AKfycbw89TfLJnFPuM_JMVMy-EhOq5PEm2dwNhqosAl13xE2PgYL7rB5OLzR1xrP74PQWrSL/exec";
+"https://script.google.com/macros/s/AKfycbzuwSIVkPLUY9dSnHxgFpSD-C8YMcb2x1PFKeuMnQ7eAWKaaMfZr-hX9eh9uRAxij1M/exec";
 
 function validar() {
 
-  let dni = document.getElementById("dni").value;
+  let dni =
+    document.getElementById("dni").value;
 
   if (!dni) {
+
     alert("Ingrese DNI");
     return;
+
   }
 
   fetch(URL_SCRIPT + "?dni=" + dni)
@@ -80,8 +83,10 @@ function validar() {
     .then(data => {
 
       if (!data) {
+
         alert("Docente no encontrado");
         return;
+
       }
 
       contexto.docente = data.dni;
@@ -111,7 +116,7 @@ function validar() {
 
     .catch(error => {
 
-      alert("Error conexión docente");
+      alert("Error validando docente");
 
       console.log(error);
 
@@ -198,73 +203,78 @@ function iniciarScanner() {
 
 }
 
-async function registrar(dni) {
+function registrar(dni) {
 
-  try {
+  const url =
 
-    const response = await fetch(URL_SCRIPT, {
+    URL_SCRIPT +
 
-      method: "POST",
+    "?registrar=1" +
 
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
+    "&dni=" + dni +
 
-      body: JSON.stringify({
-        dni: dni,
-        contexto: contexto
-      })
+    "&docente=" + contexto.docente +
+
+    "&nivel=" + contexto.nivel +
+
+    "&grado=" + contexto.grado +
+
+    "&seccion=" + contexto.seccion +
+
+    "&area=" + contexto.area;
+
+  fetch(url)
+
+    .then(r => r.json())
+
+    .then(res => {
+
+      document.getElementById("info").innerHTML = `
+
+        <div style="
+          background:white;
+          padding:20px;
+          margin-top:20px;
+          border-radius:10px;
+          text-align:center;
+        ">
+
+          <h2>
+            ${res.ok ? "REGISTRADO" : "OBSERVACION"}
+          </h2>
+
+          <p>
+            ${res.msg}
+          </p>
+
+          <button onclick="continuarEscaneo()">
+            SIGUIENTE
+          </button>
+
+          <button
+            onclick="finalizarAsistencia()"
+            style="
+              background:red;
+              color:white;
+              margin-top:10px;
+            "
+          >
+            FINALIZAR
+          </button>
+
+        </div>
+
+      `;
+
+    })
+
+    .catch(error => {
+
+      alert("Error registro");
+
+      console.log(error);
 
     });
-
-    const res = await response.json();
-
-    document.getElementById("info").innerHTML = `
-
-      <div style="
-        background:white;
-        padding:20px;
-        margin-top:20px;
-        border-radius:10px;
-        text-align:center;
-      ">
-
-        <h2>
-          ${res.ok ? "REGISTRADO" : "OBSERVACION"}
-        </h2>
-
-        <p>
-          ${res.msg}
-        </p>
-
-        <button onclick="continuarEscaneo()">
-          SIGUIENTE
-        </button>
-
-        <button
-          onclick="finalizarAsistencia()"
-          style="
-            background:red;
-            color:white;
-            margin-top:10px;
-          "
-        >
-          FINALIZAR
-        </button>
-
-      </div>
-
-    `;
-
-  }
-
-  catch(error) {
-
-    alert("ERROR REGISTRO");
-
-    console.log(error);
-
-  }
 
 }
 
