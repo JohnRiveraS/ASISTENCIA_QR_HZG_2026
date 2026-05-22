@@ -1,59 +1,548 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
   <title>Asistencia QR</title>
+
   <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial;
+    }
+
+    body{
+
+      background:#f4f7fb;
+
+      min-height:100vh;
+
+    }
+
+    /* HEADER */
+
+    .header{
+
+      background:linear-gradient(
+        90deg,
+        #0b4fa2,
+        #ffffff
+      );
+
+      padding:20px;
+
+      display:flex;
+
+      align-items:center;
+
+      justify-content:space-between;
+
+      color:white;
+
+    }
+
+    .header img{
+
+      width:70px;
+      height:70px;
+      object-fit:contain;
+
+      background:white;
+
+      border-radius:50%;
+
+      padding:5px;
+
+    }
+
+    .header-text{
+
+      text-align:center;
+
+      flex:1;
+
+    }
+
+    .header-text h1{
+
+      font-size:22px;
+
+      font-weight:bold;
+
+    }
+
+    .header-text h2{
+
+      font-size:18px;
+
+      margin-top:5px;
+
+    }
+
+    .header-text p{
+
+      margin-top:5px;
+
+      font-size:14px;
+
+    }
+
+    /* CONTENIDO */
+
+    .container{
+
+      padding:20px;
+
+    }
+
+    .titulo{
+
+      text-align:center;
+
+      margin-top:10px;
+
+      margin-bottom:25px;
+
+      color:#0b4fa2;
+
+      font-size:28px;
+
+      font-weight:bold;
+
+    }
+
+    /* FILAS */
+
+    .fila{
+
+      display:flex;
+
+      gap:10px;
+
+      margin-bottom:15px;
+
+      align-items:center;
+
+    }
+
+    .fila label{
+
+      min-width:130px;
+
+      font-weight:bold;
+
+      color:#333;
+
+    }
+
+    input,
+    select,
+    button{
+
+      padding:14px;
+
+      border-radius:10px;
+
+      border:1px solid #ccc;
+
+      font-size:16px;
+
+    }
+
+    input,
+    select{
+
+      flex:1;
+
+    }
+
+    input::placeholder{
+
+      color:#999;
+
+      font-style:italic;
+
+    }
+
+    button{
+
+      border:none;
+
+      cursor:pointer;
+
+      color:white;
+
+      font-weight:bold;
+
+      transition:0.3s;
+
+    }
+
+    button:hover{
+
+      opacity:0.9;
+
+    }
+
+    .btn-validar{
+
+      background:#0b4fa2;
+
+      min-width:120px;
+
+    }
+
+    .btn-iniciar{
+
+      background:#198754;
+
+      flex:1;
+
+    }
+
+    .btn-cancelar{
+
+      background:#dc3545;
+
+      flex:1;
+
+    }
+
+    .btn-siguiente{
+
+      background:#0b4fa2;
+
+      flex:1;
+
+    }
+
+    .btn-finalizar{
+
+      background:#dc3545;
+
+      flex:1;
+
+    }
+
+    /* CARD */
+
+    .card{
+
+      background:white;
+
+      border-radius:15px;
+
+      padding:20px;
+
+      box-shadow:0 2px 10px rgba(0,0,0,0.1);
+
+      margin-bottom:20px;
+
+    }
+
+    .docente-nombre{
+
+      font-size:22px;
+
+      font-weight:bold;
+
+      color:#0b4fa2;
+
+    }
+
+    .docente-nivel{
+
+      margin-top:5px;
+
+      color:#666;
+
+      font-size:16px;
+
+    }
+
+    /* LOADER */
+
+    .loader{
+
+      border:5px solid #eee;
+
+      border-top:5px solid #0b4fa2;
+
+      border-radius:50%;
+
+      width:40px;
+
+      height:40px;
+
+      animation:girar 1s linear infinite;
+
+      margin:auto;
+
+      margin-top:15px;
+
+    }
+
+    @keyframes girar{
+
+      100%{
+        transform:rotate(360deg);
+      }
+
+    }
+
+    /* QR */
+
+    #scanner{
+
+      margin-top:20px;
+
+      border-radius:15px;
+
+      overflow:hidden;
+
+    }
+
+    .mensaje{
+
+      text-align:center;
+
+    }
+
+    .mensaje h2{
+
+      color:#198754;
+
+      margin-bottom:10px;
+
+    }
+
+    .mensaje p{
+
+      margin-bottom:8px;
+
+      font-size:17px;
+
+    }
+
+    .acciones{
+
+      display:flex;
+
+      gap:10px;
+
+      margin-top:15px;
+
+    }
+
+    /* RESPONSIVE */
+
+    @media(max-width:700px){
+
+      .fila{
+
+        flex-direction:column;
+
+        align-items:stretch;
+
+      }
+
+      .fila label{
+
+        min-width:100%;
+      }
+
+      .header{
+
+        flex-direction:column;
+
+        gap:10px;
+
+      }
+
+      .header-text{
+
+        order:2;
+      }
+
+    }
+
+  </style>
+
 </head>
 
 <body>
 
-<h2>Asistencia QR</h2>
+  <!-- HEADER -->
 
-<input id="dni" placeholder="DNI docente">
+  <div class="header">
 
-<button onclick="validar()">
-  VALIDAR
-</button>
+    <img src="logo1.png">
 
-<div id="info"></div>
+    <div class="header-text">
 
-<div id="config" style="display:none;">
+      <h1>
+        INSTITUCION EDUCATIVA Nº 80026
+      </h1>
 
-  <div id="secundaria" style="display:none;">
+      <h2>
+        HORACIO ZEVALLOS GAMEZ
+      </h2>
 
-    <select id="grado" onchange="cargarSecciones()">
-      <option>PRIMERO</option>
-      <option>SEGUNDO</option>
-      <option>TERCERO</option>
-      <option>CUARTO</option>
-      <option>QUINTO</option>
-    </select>
+      <p>
+        EL PORVENIR - TRUJILLO
+      </p>
 
-    <select id="seccion"></select>
+    </div>
+
+    <img src="logo2.png">
 
   </div>
 
-  <select id="area">
-    <option value="MATE">MATE</option>
-    <option value="COM">COM</option>
-    <option value="CCSS">CCSS</option>
-    <option value="CT">CT</option>
-    <option value="DPCC">DPCC</option>
-    <option value="ING">ING</option>
-    <option value="ART">ART</option>
-    <option value="EPT">EPT</option>
-    <option value="REG">REG</option>
-    <option value="FIS">FIS</option>
-  </select>
+  <!-- CONTENIDO -->
 
-  <button onclick="iniciar()">
-    INICIAR ASISTENCIA
-  </button>
+  <div class="container">
 
-</div>
+    <div class="titulo">
+      REGISTRO DE ASISTENCIA
+    </div>
 
-<div id="scanner" style="width:300px;"></div>
+    <!-- DNI -->
+
+    <div class="card">
+
+      <div class="fila">
+
+        <label>
+          Ingrese su DNI
+        </label>
+
+        <input
+          id="dni"
+          placeholder="DNI docente"
+        >
+
+        <button
+          class="btn-validar"
+          onclick="validar()"
+        >
+          VALIDAR
+        </button>
+
+      </div>
+
+      <div id="loader"></div>
+
+    </div>
+
+    <!-- INFO -->
+
+    <div id="info"></div>
+
+    <!-- CONFIG -->
+
+    <div
+      id="config"
+      style="display:none;"
+    >
+
+      <div class="card">
+
+        <!-- SECUNDARIA -->
+
+        <div
+          id="secundaria"
+          style="display:none;"
+        >
+
+          <div class="fila">
+
+            <label>GRADO</label>
+
+            <select id="grado"
+                    onchange="cargarSecciones()">
+
+              <option>PRIMERO</option>
+              <option>SEGUNDO</option>
+              <option>TERCERO</option>
+              <option>CUARTO</option>
+              <option>QUINTO</option>
+
+            </select>
+
+          </div>
+
+          <div class="fila">
+
+            <label>SECCION</label>
+
+            <select id="seccion"></select>
+
+          </div>
+
+        </div>
+
+        <!-- AREA -->
+
+        <div class="fila">
+
+          <label>AREA</label>
+
+          <select id="area">
+
+            <option value="MATE">MATEMATICA</option>
+            <option value="COM">COMUNICACION</option>
+            <option value="CCSS">CIENCIAS SOCIALES</option>
+            <option value="CT">CIENCIA Y TECNOLOGIA</option>
+            <option value="DPCC">DPCC</option>
+            <option value="ING">INGLES</option>
+            <option value="ART">ARTE</option>
+            <option value="EPT">EPT</option>
+            <option value="REG">RELIGION</option>
+            <option value="FIS">ED. FISICA</option>
+
+          </select>
+
+        </div>
+
+        <!-- BOTONES -->
+
+        <div class="acciones">
+
+          <button
+            class="btn-iniciar"
+            onclick="iniciar()"
+          >
+            INICIAR
+          </button>
+
+          <button
+            class="btn-cancelar"
+            onclick="cancelar()"
+          >
+            CANCELAR
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- SCANNER -->
+
+    <div id="scanner"></div>
+
+  </div>
 
 <script>
 
@@ -62,19 +551,35 @@ let qr;
 let bloqueado = false;
 
 const URL_SCRIPT =
-"https://script.google.com/macros/s/AKfycbzuwSIVkPLUY9dSnHxgFpSD-C8YMcb2x1PFKeuMnQ7eAWKaaMfZr-hX9eh9uRAxij1M/exec";
+"https://script.google.com/macros/s/TU_URL_REAL/exec";
 
-function validar() {
+function mostrarLoader(){
+
+  document.getElementById("loader").innerHTML = `
+    <div class="loader"></div>
+  `;
+
+}
+
+function ocultarLoader(){
+
+  document.getElementById("loader").innerHTML = "";
+
+}
+
+function validar(){
 
   let dni =
     document.getElementById("dni").value;
 
-  if (!dni) {
+  if(!dni){
 
     alert("Ingrese DNI");
     return;
 
   }
+
+  mostrarLoader();
 
   fetch(URL_SCRIPT + "?dni=" + dni)
 
@@ -82,7 +587,9 @@ function validar() {
 
     .then(data => {
 
-      if (!data) {
+      ocultarLoader();
+
+      if(!data){
 
         alert("Docente no encontrado");
         return;
@@ -92,20 +599,33 @@ function validar() {
       contexto.docente = data.dni;
       contexto.nivel = data.nivel;
 
-      document.getElementById("info").innerHTML =
-        data.nombre;
+      document.getElementById("info").innerHTML = `
 
-      document.getElementById("config").style.display =
-        "block";
+        <div class="card">
 
-      if (data.nivel == "SECUNDARIA") {
+          <div class="docente-nombre">
+            ${data.nombre}
+          </div>
+
+          <div class="docente-nivel">
+            ${data.nivel}
+          </div>
+
+        </div>
+
+      `;
+
+      document.getElementById("config")
+        .style.display = "block";
+
+      if(data.nivel == "SECUNDARIA"){
 
         document.getElementById("secundaria")
           .style.display = "block";
 
         cargarSecciones();
 
-      } else {
+      }else{
 
         contexto.grado = data.grado;
         contexto.seccion = data.seccion;
@@ -116,7 +636,9 @@ function validar() {
 
     .catch(error => {
 
-      alert("Error validando docente");
+      ocultarLoader();
+
+      alert("Error conexión");
 
       console.log(error);
 
@@ -124,7 +646,7 @@ function validar() {
 
 }
 
-function cargarSecciones() {
+function cargarSecciones(){
 
   let grado =
     document.getElementById("grado").value;
@@ -152,12 +674,12 @@ function cargarSecciones() {
 
 }
 
-function iniciar() {
+function iniciar(){
 
   contexto.area =
     document.getElementById("area").value;
 
-  if (contexto.nivel == "SECUNDARIA") {
+  if(contexto.nivel == "SECUNDARIA"){
 
     contexto.grado =
       document.getElementById("grado").value;
@@ -171,29 +693,29 @@ function iniciar() {
 
 }
 
-function iniciarScanner() {
+function iniciarScanner(){
 
   qr = new Html5Qrcode("scanner");
 
   qr.start(
 
-    { facingMode: "environment" },
+    { facingMode:"environment" },
 
     {
-      fps: 10,
-      qrbox: 250
+      fps:10,
+      qrbox:250
     },
 
-    async(decodedText) => {
+    async(decodedText)=>{
 
-      if (bloqueado) return;
+      if(bloqueado) return;
 
       bloqueado = true;
 
       let dni = decodedText.trim();
 
-      dni = dni.replace("DNI:", "");
-      dni = dni.replace(/\s/g, "");
+      dni = dni.replace("DNI:","");
+      dni = dni.replace(/\s/g,"");
 
       registrar(dni);
 
@@ -203,7 +725,7 @@ function iniciarScanner() {
 
 }
 
-function registrar(dni) {
+function registrar(dni){
 
   const url =
 
@@ -231,13 +753,7 @@ function registrar(dni) {
 
       document.getElementById("info").innerHTML = `
 
-        <div style="
-          background:white;
-          padding:20px;
-          margin-top:20px;
-          border-radius:10px;
-          text-align:center;
-        ">
+        <div class="card mensaje">
 
           <h2>
             ${res.ok ? "REGISTRADO" : "OBSERVACION"}
@@ -247,38 +763,33 @@ function registrar(dni) {
             ${res.msg}
           </p>
 
-          <button onclick="continuarEscaneo()">
-            SIGUIENTE
-          </button>
+          <div class="acciones">
 
-          <button
-            onclick="finalizarAsistencia()"
-            style="
-              background:red;
-              color:white;
-              margin-top:10px;
-            "
-          >
-            FINALIZAR
-          </button>
+            <button
+              class="btn-siguiente"
+              onclick="continuarEscaneo()"
+            >
+              SIGUIENTE
+            </button>
+
+            <button
+              class="btn-finalizar"
+              onclick="finalizarAsistencia()"
+            >
+              FINALIZAR
+            </button>
+
+          </div>
 
         </div>
 
       `;
 
-    })
-
-    .catch(error => {
-
-      alert("Error registro");
-
-      console.log(error);
-
     });
 
 }
 
-function continuarEscaneo() {
+function continuarEscaneo(){
 
   bloqueado = false;
 
@@ -286,20 +797,48 @@ function continuarEscaneo() {
 
 }
 
-async function finalizarAsistencia() {
+async function finalizarAsistencia(){
 
-  try {
+  try{
 
     await qr.stop();
 
-  } catch(e) {}
+  }catch(e){}
 
   bloqueado = false;
 
   document.getElementById("scanner").innerHTML = "";
 
-  document.getElementById("info").innerHTML =
-    "Asistencia finalizada";
+  document.getElementById("info").innerHTML = `
+
+    <div class="card mensaje">
+
+      <h2>
+        Gracias por usar el sistema
+      </h2>
+
+      <p>
+        Los registros de asistencia fueron
+        almacenados correctamente.
+      </p>
+
+    </div>
+
+  `;
+
+}
+
+function cancelar(){
+
+  document.getElementById("dni").value = "";
+
+  document.getElementById("info").innerHTML = "";
+
+  document.getElementById("config")
+    .style.display = "none";
+
+  document.getElementById("secundaria")
+    .style.display = "none";
 
 }
 
