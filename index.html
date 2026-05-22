@@ -706,7 +706,7 @@ function iniciarScanner(){
       qrbox:250
     },
 
-    async(decodedText)=>{
+    (decodedText)=>{
 
       if(bloqueado) return;
 
@@ -718,6 +718,12 @@ function iniciarScanner(){
       dni = dni.replace(/\s/g,"");
 
       registrar(dni);
+
+    },
+
+    (errorMessage)=>{
+
+      // ignorar errores de lectura
 
     }
 
