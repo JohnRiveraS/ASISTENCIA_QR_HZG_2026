@@ -22,11 +22,8 @@
     }
 
     body{
-
       background:#f4f7fb;
-
       min-height:100vh;
-
     }
 
     /* HEADER */
@@ -76,7 +73,6 @@
     .header-text h1{
 
       font-size:22px;
-
       font-weight:bold;
 
     }
@@ -84,7 +80,6 @@
     .header-text h2{
 
       font-size:18px;
-
       margin-top:5px;
 
     }
@@ -92,7 +87,6 @@
     .header-text p{
 
       margin-top:5px;
-
       font-size:14px;
 
     }
@@ -100,9 +94,7 @@
     /* CONTENIDO */
 
     .container{
-
       padding:20px;
-
     }
 
     .titulo{
@@ -161,15 +153,12 @@
 
     input,
     select{
-
       flex:1;
-
     }
 
     input::placeholder{
 
       color:#999;
-
       font-style:italic;
 
     }
@@ -189,49 +178,32 @@
     }
 
     button:hover{
-
       opacity:0.9;
-
     }
 
     .btn-validar{
-
       background:#0b4fa2;
-
       min-width:120px;
-
     }
 
     .btn-iniciar{
-
       background:#198754;
-
       flex:1;
-
     }
 
     .btn-cancelar{
-
       background:#dc3545;
-
       flex:1;
-
     }
 
     .btn-siguiente{
-
       background:#0b4fa2;
-
       flex:1;
-
     }
 
     .btn-finalizar{
-
       background:#dc3545;
-
       flex:1;
-
     }
 
     /* CARD */
@@ -300,17 +272,45 @@
 
     }
 
-    /* QR */
+    /* SCANNER */
 
-    #scanner{
+    #scanner-container{
+
+      position:relative;
 
       margin-top:20px;
+
+    }
+
+    #scanner{
 
       border-radius:15px;
 
       overflow:hidden;
 
     }
+
+    /* POPUP */
+
+    #popup{
+
+      position:absolute;
+
+      top:50%;
+
+      left:50%;
+
+      transform:translate(-50%, -50%);
+
+      width:90%;
+
+      max-width:400px;
+
+      z-index:999;
+
+    }
+
+    /* MENSAJE */
 
     .mensaje{
 
@@ -344,6 +344,30 @@
 
     }
 
+    /* CONTADOR */
+
+    .contador{
+
+      background:#0b4fa2;
+
+      color:white;
+
+      padding:12px;
+
+      border-radius:12px;
+
+      text-align:center;
+
+      font-size:20px;
+
+      font-weight:bold;
+
+      margin-bottom:20px;
+
+      display:none;
+
+    }
+
     /* RESPONSIVE */
 
     @media(max-width:700px){
@@ -357,7 +381,6 @@
       }
 
       .fila label{
-
         min-width:100%;
       }
 
@@ -370,7 +393,6 @@
       }
 
       .header-text{
-
         order:2;
       }
 
@@ -414,6 +436,15 @@
 
     <div class="titulo">
       REGISTRO DE ASISTENCIA
+    </div>
+
+    <!-- CONTADOR -->
+
+    <div id="contador"
+         class="contador">
+
+      REGISTRADOS: 0
+
     </div>
 
     <!-- DNI -->
@@ -540,7 +571,13 @@
 
     <!-- SCANNER -->
 
-    <div id="scanner"></div>
+    <div id="scanner-container">
+
+      <div id="scanner"></div>
+
+      <div id="popup"></div>
+
+    </div>
 
   </div>
 
@@ -549,9 +586,10 @@
 let contexto = {};
 let qr;
 let bloqueado = false;
+let totalRegistrados = 0;
 
 const URL_SCRIPT =
-"https://script.google.com/macros/s/AKfycbzuwSIVkPLUY9dSnHxgFpSD-C8YMcb2x1PFKeuMnQ7eAWKaaMfZr-hX9eh9uRAxij1M/exec";
+"https://script.google.com/macros/s/TU_URL_REAL/exec";
 
 function mostrarLoader(){
 
@@ -689,6 +727,9 @@ function iniciar(){
 
   }
 
+  document.getElementById("contador")
+    .style.display = "block";
+
   iniciarScanner();
 
 }
@@ -723,7 +764,7 @@ function iniciarScanner(){
 
     (errorMessage)=>{
 
-      // ignorar errores de lectura
+      // ignorar errores
 
     }
 
@@ -739,17 +780,17 @@ function registrar(dni){
 
     "?registrar=1" +
 
-    "&dni=" + dni +
+    "&dni=" + encodeURIComponent(dni) +
 
-    "&docente=" + contexto.docente +
+    "&docente=" + encodeURIComponent(contexto.docente) +
 
-    "&nivel=" + contexto.nivel +
+    "&nivel=" + encodeURIComponent(contexto.nivel) +
 
-    "&grado=" + contexto.grado +
+    "&grado=" + encodeURIComponent(contexto.grado) +
 
-    "&seccion=" + contexto.seccion +
+    "&seccion=" + encodeURIComponent(contexto.seccion) +
 
-    "&area=" + contexto.area;
+    "&area=" + encodeURIComponent(contexto.area);
 
   fetch(url)
 
@@ -757,9 +798,24 @@ function registrar(dni){
 
     .then(res => {
 
-      document.getElementById("info").innerHTML = `
+      if(res.ok){
 
-        <div class="card mensaje">
+        totalRegistrados++;
+
+        document.getElementById("contador")
+          .innerHTML =
+          "REGISTRADOS: " + totalRegistrados;
+
+      }
+
+      document.getElementById("popup").innerHTML = `
+
+        <div class="card mensaje"
+             style="
+               background:white;
+               border:3px solid #0b4fa2;
+               box-shadow:0 5px 20px rgba(0,0,0,0.3);
+             ">
 
           <h2>
             ${res.ok ? "REGISTRADO" : "OBSERVACION"}
@@ -791,6 +847,16 @@ function registrar(dni){
 
       `;
 
+    })
+
+    .catch(error => {
+
+      bloqueado = false;
+
+      alert("Error registrando asistencia");
+
+      console.log(error);
+
     });
 
 }
@@ -799,7 +865,7 @@ function continuarEscaneo(){
 
   bloqueado = false;
 
-  document.getElementById("info").innerHTML = "";
+  document.getElementById("popup").innerHTML = "";
 
 }
 
@@ -815,9 +881,14 @@ async function finalizarAsistencia(){
 
   document.getElementById("scanner").innerHTML = "";
 
-  document.getElementById("info").innerHTML = `
+  document.getElementById("popup").innerHTML = `
 
-    <div class="card mensaje">
+    <div class="card mensaje"
+         style="
+           background:white;
+           border:3px solid #198754;
+           box-shadow:0 5px 20px rgba(0,0,0,0.3);
+         ">
 
       <h2>
         Gracias por usar el sistema
@@ -826,6 +897,11 @@ async function finalizarAsistencia(){
       <p>
         Los registros de asistencia fueron
         almacenados correctamente.
+      </p>
+
+      <p>
+        Total registrados:
+        <b>${totalRegistrados}</b>
       </p>
 
     </div>
@@ -845,6 +921,15 @@ function cancelar(){
 
   document.getElementById("secundaria")
     .style.display = "none";
+
+  document.getElementById("popup").innerHTML = "";
+
+  document.getElementById("scanner").innerHTML = "";
+
+  document.getElementById("contador")
+    .style.display = "none";
+
+  totalRegistrados = 0;
 
 }
 
