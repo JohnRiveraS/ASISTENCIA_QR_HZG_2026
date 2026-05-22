@@ -1,9 +1,51 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Asistencia QR</title>
+
   <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+
+    body{
+      font-family:Arial;
+      padding:20px;
+      background:#f5f5f5;
+    }
+
+    input, select, button{
+      width:100%;
+      padding:15px;
+      margin-top:10px;
+      font-size:18px;
+      border-radius:10px;
+      border:1px solid #ccc;
+      box-sizing:border-box;
+    }
+
+    button{
+      background:#1a73e8;
+      color:white;
+      border:none;
+    }
+
+    #scanner{
+      margin-top:20px;
+    }
+
+    .card{
+      background:white;
+      padding:20px;
+      border-radius:15px;
+      margin-top:20px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.2);
+      text-align:center;
+    }
+
+  </style>
+
 </head>
 
 <body>
@@ -11,12 +53,17 @@
 <h2>Asistencia QR</h2>
 
 <input id="dni" placeholder="DNI docente">
-<button onclick="validar()">Validar</button>
-  
+
+<button onclick="validar()">
+  VALIDAR
+</button>
+
 <div id="info"></div>
 
 <div id="config" style="display:none;">
+
   <div id="secundaria" style="display:none;">
+
     <select id="grado" onchange="cargarSecciones()">
       <option>PRIMERO</option>
       <option>SEGUNDO</option>
@@ -26,118 +73,265 @@
     </select>
 
     <select id="seccion"></select>
+
   </div>
 
   <select id="area">
-    <option value="MATE">MATE</option>
-    <option value="COM">COM</option>
-    <option value="CCSS">CCSS</option>
-    <option value="CT">CT</option>
+
+    <option value="MATE">MATEMATICA</option>
+    <option value="COM">COMUNICACION</option>
+    <option value="CCSS">CIENCIAS SOCIALES</option>
+    <option value="CT">CIENCIA Y TECNOLOGIA</option>
     <option value="DPCC">DPCC</option>
-    <option value="ING">ING</option>
-    <option value="ART">ART</option>
+    <option value="ING">INGLES</option>
+    <option value="ART">ARTE</option>
     <option value="EPT">EPT</option>
-    <option value="REG">REG</option>
-    <option value="FIS">FIS</option>
+    <option value="REG">RELIGION</option>
+    <option value="FIS">ED. FISICA</option>
+
   </select>
 
-  <button onclick="iniciar()">INICIAR</button>
+  <button onclick="iniciar()">
+    INICIAR ASISTENCIA
+  </button>
+
 </div>
 
-<div id="scanner" style="width:300px;"></div>
+<div id="scanner"></div>
 
 <script>
 
 let contexto = {};
 let qr;
+let scannerActivo = false;
 
-function validar() {
+const URL_SCRIPT =
+"https://script.google.com/macros/s/AKfycbyvGctwZ_IskT2M9kSC68moempT5GV29cS0nxAyGo1FhVTlDCmnP432gcUXbuul7jaD/exec";
+
+function validar(){
+
   let dni = document.getElementById("dni").value;
 
-  if (!dni) {
+  if(!dni){
     alert("Ingrese DNI");
     return;
   }
 
-  fetch("https://script.google.com/macros/s/AKfycbyvGctwZ_IskT2M9kSC68moempT5GV29cS0nxAyGo1FhVTlDCmnP432gcUXbuul7jaD/exec?dni=" + dni)
-    .then(response => response.json())
-    .then(data => {
+  fetch(URL_SCRIPT + "?dni=" + dni)
 
-      if (!data) {
-        alert("Docente no encontrado");
-        return;
-      }
+  .then(r => r.json())
 
-      contexto.docente = data.dni;
-      contexto.nivel = data.nivel;
+  .then(data => {
 
-      document.getElementById("info").innerHTML = data.nombre;
-      document.getElementById("config").style.display = "block";
+    if(!data){
+      alert("Docente no encontrado");
+      return;
+    }
 
-      if (data.nivel == "SECUNDARIA") {
-        document.getElementById("secundaria").style.display = "block";
-        cargarSecciones();
-      } else {
-        contexto.grado = data.grado;
-        contexto.seccion = data.seccion;
-      }
+    contexto.docente = data.dni;
+    contexto.nivel = data.nivel;
 
-    })
-    .catch(error => {
-      alert("Error: " + error);
-    });
+    document.getElementById("info").innerHTML = `
+      <div class="card">
+        <h3>${data.nombre}</h3>
+        <p>${data.nivel}</p>
+      </div>
+    `;
+
+    document.getElementById("config").style.display = "block";
+
+    if(data.nivel == "SECUNDARIA"){
+
+      document.getElementById("secundaria").style.display = "block";
+
+      cargarSecciones();
+
+    }else{
+
+      contexto.grado = data.grado;
+      contexto.seccion = data.seccion;
+
+    }
+
+  })
+
+  .catch(error => {
+
+    alert("Error de conexión");
+
+  });
+
 }
 
-function cargarSecciones() {
+function cargarSecciones(){
+
   let grado = document.getElementById("grado").value;
+
   let select = document.getElementById("seccion");
 
-  let opciones = (grado == "PRIMERO") ? ["A","B","C","D"] : ["A","B","C"];
+  let opciones =
+    (grado == "PRIMERO")
+    ? ["A","B","C","D"]
+    : ["A","B","C"];
 
   select.innerHTML = "";
+
   opciones.forEach(s => {
+
     let op = document.createElement("option");
+
     op.value = s;
     op.text = s;
+
     select.appendChild(op);
+
   });
+
 }
 
-function iniciar() {
-  contexto.area = document.getElementById("area").value;
+function iniciar(){
 
-  if (contexto.nivel == "SECUNDARIA") {
-    contexto.grado = document.getElementById("grado").value;
-    contexto.seccion = document.getElementById("seccion").value;
+  contexto.area =
+    document.getElementById("area").value;
+
+  if(contexto.nivel == "SECUNDARIA"){
+
+    contexto.grado =
+      document.getElementById("grado").value;
+
+    contexto.seccion =
+      document.getElementById("seccion").value;
   }
 
   iniciarScanner();
+
 }
 
-function iniciarScanner() {
+function iniciarScanner(){
+
+  if(scannerActivo) return;
+
+  scannerActivo = true;
+
+  document.getElementById("scanner").innerHTML = "";
+
   qr = new Html5Qrcode("scanner");
 
   qr.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 250 },
-    (decodedText) => {
+
+    { facingMode:"environment" },
+
+    {
+      fps:10,
+      qrbox:250
+    },
+
+    async(decodedText)=>{
+
+      await qr.stop();
+
+      scannerActivo = false;
+
       registrar(decodedText);
+
     }
+
   );
+
 }
 
-function registrar(dni) {
-  fetch("https://script.google.com/macros/s/AKfycbyvGctwZ_IskT2M9kSC68moempT5GV29cS0nxAyGo1FhVTlDCmnP432gcUXbuul7jaD/exec", {
-    method: "POST",
-    body: JSON.stringify({
-      dni: dni,
-      contexto: contexto
-    })
-  })
-  .then(r => r.json())
-  .then(res => {
-    alert(res.msg);
-  });
+async function registrar(dni){
+
+  try{
+
+    const response = await fetch(URL_SCRIPT,{
+
+      method:"POST",
+
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify({
+        dni:dni,
+        contexto:contexto
+      })
+
+    });
+
+    const res = await response.json();
+
+    document.getElementById("info").innerHTML = `
+
+      <div class="card">
+
+        <h2>
+          ${res.ok ? "✅ REGISTRADO" : "⚠️ OBSERVACIÓN"}
+        </h2>
+
+        <p style="font-size:20px;">
+          ${res.msg}
+        </p>
+
+        <button onclick="continuarEscaneo()">
+          SIGUIENTE
+        </button>
+
+        <button
+          onclick="finalizarAsistencia()"
+          style="background:#d93025;margin-top:10px;"
+        >
+          FINALIZAR
+        </button>
+
+      </div>
+
+    `;
+
+  }catch(error){
+
+    alert("Error");
+
+  }
+
+}
+
+function continuarEscaneo(){
+
+  document.getElementById("info").innerHTML = "";
+
+  iniciarScanner();
+
+}
+
+async function finalizarAsistencia(){
+
+  if(qr){
+
+    try{
+      await qr.stop();
+    }catch(e){}
+
+  }
+
+  scannerActivo = false;
+
+  document.getElementById("scanner").innerHTML = "";
+
+  document.getElementById("info").innerHTML = `
+
+    <div class="card">
+
+      <h3>Asistencia finalizada</h3>
+
+      <p>
+        Puede iniciar otra asistencia seleccionando un área.
+      </p>
+
+    </div>
+
+  `;
+
 }
 
 </script>
