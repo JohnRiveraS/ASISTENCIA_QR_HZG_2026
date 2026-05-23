@@ -85,17 +85,27 @@
 
     .header-text h1{
 
-      font-size:22px;
+      font-size:23px;
 
       font-weight:bold;
+
+      -webkit-text-stroke:0.5px black;
+
+      text-shadow:
+        1px 1px 2px rgba(0,0,0,0.4);
 
     }
 
     .header-text h2{
 
-      font-size:18px;
+      font-size:19px;
 
       margin-top:5px;
+
+      -webkit-text-stroke:0.5px black;
+
+      text-shadow:
+        1px 1px 2px rgba(0,0,0,0.4);
 
     }
 
@@ -103,7 +113,12 @@
 
       margin-top:5px;
 
-      font-size:14px;
+      font-size:15px;
+
+      -webkit-text-stroke:0.4px black;
+
+      text-shadow:
+        1px 1px 2px rgba(0,0,0,0.4);
 
     }
 
@@ -256,6 +271,18 @@
       color:#666;
 
       font-size:16px;
+
+    }
+
+    .docente-extra{
+
+      margin-top:8px;
+
+      font-size:17px;
+
+      font-weight:bold;
+
+      color:#222;
 
     }
 
@@ -428,19 +455,19 @@
 
       .header-text h1{
 
-        font-size:15px;
+        font-size:16px;
 
       }
 
       .header-text h2{
 
-        font-size:13px;
+        font-size:14px;
 
       }
 
       .header-text p{
 
-        font-size:11px;
+        font-size:12px;
 
       }
 
@@ -495,7 +522,7 @@
   <div class="container">
 
     <div class="titulo">
-      REGISTRO DE ASISTENCIA
+      REGISTRO DE ASISTENCIA DE ESTUDIANTES
     </div>
 
     <!-- CONTADOR -->
@@ -584,28 +611,26 @@
 
             </div>
 
-          </div>
+            <div class="fila">
 
-          <!-- AREA -->
+              <label>AREA</label>
 
-          <div class="fila">
+              <select id="area">
 
-            <label>AREA</label>
+                <option value="MATE">MATEMATICA</option>
+                <option value="COM">COMUNICACION</option>
+                <option value="CCSS">CIENCIAS SOCIALES</option>
+                <option value="CT">CIENCIA Y TECNOLOGIA</option>
+                <option value="DPCC">DPCC</option>
+                <option value="ING">INGLES</option>
+                <option value="ART">ARTE</option>
+                <option value="EPT">EPT</option>
+                <option value="REG">RELIGION</option>
+                <option value="FIS">ED. FISICA</option>
 
-            <select id="area">
+              </select>
 
-              <option value="MATE">MATEMATICA</option>
-              <option value="COM">COMUNICACION</option>
-              <option value="CCSS">CIENCIAS SOCIALES</option>
-              <option value="CT">CIENCIA Y TECNOLOGIA</option>
-              <option value="DPCC">DPCC</option>
-              <option value="ING">INGLES</option>
-              <option value="ART">ARTE</option>
-              <option value="EPT">EPT</option>
-              <option value="REG">RELIGION</option>
-              <option value="FIS">ED. FISICA</option>
-
-            </select>
+            </div>
 
           </div>
 
@@ -705,6 +730,28 @@ function validar(){
       contexto.docente = data.dni;
       contexto.nivel = data.nivel;
 
+      let extra = "";
+
+      if(data.nivel == "PRIMARIA"){
+
+        extra = `
+          <div class="docente-extra">
+            GRADO: ${data.grado} | SECCION: ${data.seccion}
+          </div>
+        `;
+
+      }
+
+      if(data.nivel == "INICIAL"){
+
+        extra = `
+          <div class="docente-extra">
+            AÑO: ${data.grado} | COLOR: ${data.seccion}
+          </div>
+        `;
+
+      }
+
       document.getElementById("info").innerHTML = `
 
         <div class="card">
@@ -716,6 +763,8 @@ function validar(){
           <div class="docente-nivel">
             ${data.nivel}
           </div>
+
+          ${extra}
 
         </div>
 
@@ -733,8 +782,12 @@ function validar(){
 
       }else{
 
+        document.getElementById("secundaria")
+          .style.display = "none";
+
         contexto.grado = data.grado;
         contexto.seccion = data.seccion;
+        contexto.area = "UNICA";
 
       }
 
@@ -782,9 +835,6 @@ function cargarSecciones(){
 
 function iniciar(){
 
-  contexto.area =
-    document.getElementById("area").value;
-
   if(contexto.nivel == "SECUNDARIA"){
 
     contexto.grado =
@@ -793,14 +843,13 @@ function iniciar(){
     contexto.seccion =
       document.getElementById("seccion").value;
 
-  }
+    contexto.area =
+      document.getElementById("area").value;
 
-  // OCULTAR FORMULARIO
+  }
 
   document.getElementById("formulario")
     .style.display = "none";
-
-  // MOSTRAR CONTADOR
 
   document.getElementById("contador")
     .style.display = "block";
@@ -834,12 +883,6 @@ function iniciarScanner(){
       dni = dni.replace(/\s/g,"");
 
       registrar(dni);
-
-    },
-
-    (errorMessage)=>{
-
-      // ignorar errores
 
     }
 
@@ -897,9 +940,19 @@ function registrar(dni){
             ${res.ok ? "REGISTRADO" : "OBSERVACION"}
           </h2>
 
-          <p>
-            ${res.msg}
-          </p>
+          <p><b>${res.msg}</b></p>
+
+          ${res.estudiante ? `
+
+            <p>${res.estudiante.nombre}</p>
+            <p>${res.estudiante.nivel}</p>
+            <p>
+              ${res.estudiante.grado}
+              -
+              ${res.estudiante.seccion}
+            </p>
+
+          ` : ""}
 
           <div class="acciones">
 
@@ -1006,24 +1059,7 @@ function cerrarSistema(){
 
 function cancelar(){
 
-  document.getElementById("dni").value = "";
-
-  document.getElementById("info").innerHTML = "";
-
-  document.getElementById("config")
-    .style.display = "none";
-
-  document.getElementById("secundaria")
-    .style.display = "none";
-
-  document.getElementById("popup").innerHTML = "";
-
-  document.getElementById("scanner").innerHTML = "";
-
-  document.getElementById("contador")
-    .style.display = "none";
-
-  totalRegistrados = 0;
+  location.reload();
 
 }
 
