@@ -498,6 +498,8 @@
       REGISTRO DE ASISTENCIA
     </div>
 
+    <!-- CONTADOR -->
+
     <div id="contador"
          class="contador">
 
@@ -505,121 +507,127 @@
 
     </div>
 
-    <!-- DNI -->
+    <!-- FORMULARIO -->
 
-    <div class="card">
+    <div id="formulario">
 
-      <div class="fila">
-
-        <label>
-          Ingrese su DNI
-        </label>
-
-        <input
-          id="dni"
-          placeholder="DNI docente"
-        >
-
-        <button
-          class="btn-validar"
-          onclick="validar()"
-        >
-          VALIDAR
-        </button>
-
-      </div>
-
-      <div id="loader"></div>
-
-    </div>
-
-    <!-- INFO -->
-
-    <div id="info"></div>
-
-    <!-- CONFIG -->
-
-    <div
-      id="config"
-      style="display:none;"
-    >
+      <!-- DNI -->
 
       <div class="card">
 
-        <!-- SECUNDARIA -->
+        <div class="fila">
 
-        <div
-          id="secundaria"
-          style="display:none;"
-        >
+          <label>
+            Ingrese su DNI
+          </label>
+
+          <input
+            id="dni"
+            placeholder="DNI docente"
+          >
+
+          <button
+            class="btn-validar"
+            onclick="validar()"
+          >
+            VALIDAR
+          </button>
+
+        </div>
+
+        <div id="loader"></div>
+
+      </div>
+
+      <!-- INFO -->
+
+      <div id="info"></div>
+
+      <!-- CONFIG -->
+
+      <div
+        id="config"
+        style="display:none;"
+      >
+
+        <div class="card">
+
+          <!-- SECUNDARIA -->
+
+          <div
+            id="secundaria"
+            style="display:none;"
+          >
+
+            <div class="fila">
+
+              <label>GRADO</label>
+
+              <select id="grado"
+                      onchange="cargarSecciones()">
+
+                <option>PRIMERO</option>
+                <option>SEGUNDO</option>
+                <option>TERCERO</option>
+                <option>CUARTO</option>
+                <option>QUINTO</option>
+
+              </select>
+
+            </div>
+
+            <div class="fila">
+
+              <label>SECCION</label>
+
+              <select id="seccion"></select>
+
+            </div>
+
+          </div>
+
+          <!-- AREA -->
 
           <div class="fila">
 
-            <label>GRADO</label>
+            <label>AREA</label>
 
-            <select id="grado"
-                    onchange="cargarSecciones()">
+            <select id="area">
 
-              <option>PRIMERO</option>
-              <option>SEGUNDO</option>
-              <option>TERCERO</option>
-              <option>CUARTO</option>
-              <option>QUINTO</option>
+              <option value="MATE">MATEMATICA</option>
+              <option value="COM">COMUNICACION</option>
+              <option value="CCSS">CIENCIAS SOCIALES</option>
+              <option value="CT">CIENCIA Y TECNOLOGIA</option>
+              <option value="DPCC">DPCC</option>
+              <option value="ING">INGLES</option>
+              <option value="ART">ARTE</option>
+              <option value="EPT">EPT</option>
+              <option value="REG">RELIGION</option>
+              <option value="FIS">ED. FISICA</option>
 
             </select>
 
           </div>
 
-          <div class="fila">
+          <!-- BOTONES -->
 
-            <label>SECCION</label>
+          <div class="acciones">
 
-            <select id="seccion"></select>
+            <button
+              class="btn-iniciar"
+              onclick="iniciar()"
+            >
+              INICIAR
+            </button>
+
+            <button
+              class="btn-cancelar"
+              onclick="cancelar()"
+            >
+              CANCELAR
+            </button>
 
           </div>
-
-        </div>
-
-        <!-- AREA -->
-
-        <div class="fila">
-
-          <label>AREA</label>
-
-          <select id="area">
-
-            <option value="MATE">MATEMATICA</option>
-            <option value="COM">COMUNICACION</option>
-            <option value="CCSS">CIENCIAS SOCIALES</option>
-            <option value="CT">CIENCIA Y TECNOLOGIA</option>
-            <option value="DPCC">DPCC</option>
-            <option value="ING">INGLES</option>
-            <option value="ART">ARTE</option>
-            <option value="EPT">EPT</option>
-            <option value="REG">RELIGION</option>
-            <option value="FIS">ED. FISICA</option>
-
-          </select>
-
-        </div>
-
-        <!-- BOTONES -->
-
-        <div class="acciones">
-
-          <button
-            class="btn-iniciar"
-            onclick="iniciar()"
-          >
-            INICIAR
-          </button>
-
-          <button
-            class="btn-cancelar"
-            onclick="cancelar()"
-          >
-            CANCELAR
-          </button>
 
         </div>
 
@@ -649,7 +657,7 @@ let bloqueado = false;
 let totalRegistrados = 0;
 
 const URL_SCRIPT =
-"https://script.google.com/macros/s/AKfycbwF9SLtXikivyjOu_j-a_kmSPpYp8lqgaWWW7InNUbkyRZARubA0NfRE8MM9ThY98op/exec";
+"https://script.google.com/macros/s/AKfycbwq6NH5EB0TrC36Ihtlo71aJuepGXHIB4QGKyNlYMh0zlwmizBjtzZjgRC9VxXseKqd/exec";
 
 function mostrarLoader(){
 
@@ -786,6 +794,13 @@ function iniciar(){
       document.getElementById("seccion").value;
 
   }
+
+  // OCULTAR FORMULARIO
+
+  document.getElementById("formulario")
+    .style.display = "none";
+
+  // MOSTRAR CONTADOR
 
   document.getElementById("contador")
     .style.display = "block";
@@ -966,9 +981,26 @@ async function finalizarAsistencia(){
         <b>${totalRegistrados}</b>
       </p>
 
+      <div class="acciones">
+
+        <button
+          class="btn-finalizar"
+          onclick="cerrarSistema()"
+        >
+          CERRAR
+        </button>
+
+      </div>
+
     </div>
 
   `;
+
+}
+
+function cerrarSistema(){
+
+  location.reload();
 
 }
 
